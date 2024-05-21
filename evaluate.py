@@ -3,7 +3,7 @@ operators = {
     '+': lambda x, y: x + y,
     '-': lambda x, y: x - y,
     '*': lambda x, y: x * y,
-    '/': lambda x, y: x / (y+0.0000001), #deal with division by 0 later 
+    '/': lambda x, y: x / (y+0.001), #deal with division by 0 later 
 }
 
 

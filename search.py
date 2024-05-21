@@ -48,12 +48,24 @@ def prob_search(inputs, targets, grammar, progs= [["tbf", 100]]): #idk what num 
     
     #remove the highest scoring program from prog
     j = 0
-    while(j < 50):
+    while(j < 500000):
         j += 1
+        
         # print(progs, "progs")
-        best_program = min(progs, key=lambda x: x[1] * rec_len(x[0])) #weighing by length of program
+        # best_program = min(progs, key=lambda x: x[1] * rec_len(x[0])) #weighing by length of program
+
+        weights = [x[1] * rec_len(x[0]) for x in progs] 
+        weights = [1 / w for w in weights] 
+        best_program = random.choices(progs, weights=weights, k=1)[0]
+        
+        
         print(best_program, "best_program")
+        # if j %50 == 0:
+        #     print(best_program[0])
+        #     print(len(progs), "len progs")
         progs.remove(best_program)
+        
+        
         
         #if best program has no tbf, move on 
         if not(recursive_search(best_program[0], "tbf")):
@@ -79,7 +91,12 @@ def prob_search(inputs, targets, grammar, progs= [["tbf", 100]]): #idk what num 
             
             # print(closenesses, "closenesses")
             
-            rating = sum(closenesses) / len(closenesses)
+            # rating = sum(closenesses) / len(closenesses) 
+            #temp trying min instead
+            # rating = min(closenesses) #other stuff gets zero 
+            #trying average of top 10
+            rating = sum(sorted(closenesses)[:10]) / 10 #todo fix this stuff
+            
             if rating == 0:
                 return new_prog
             
@@ -127,7 +144,7 @@ def deep_replace(expr, old, replacement):
     return expr
     
     
-def try_random_fills(prog, grammar, num_fills = 10, max_depth = 10):
+def try_random_fills(prog, grammar, num_fills = 100, max_depth = 10):
     fills = []
     
     
@@ -158,7 +175,10 @@ def try_random_fills(prog, grammar, num_fills = 10, max_depth = 10):
     
 def closeness(results, targets):
     #metric is average difference 
-    return sum([abs(results[i] - targets[i]) for i in range(len(results))]) / len(results)
+    # return sum([abs(results[i] - targets[i]) for i in range(len(results))]) / len(results)
+
+    #mean squared error
+    return sum([(results[i] - targets[i])**2 for i in range(len(results))]) / len(results)
     
     
     
@@ -167,8 +187,10 @@ if __name__ == "__main__":
     test_prog2 = ["+", "tbf", "tbf"]
     # print(deep_replace(test_prog, "tbf", "x"))
     
-    inputs = [1, 2, 3, 4, 5]
-    targets = [2, 4, 6, 8, 10]
+    # inputs = [1, 2, 3, 4, 5]
+    # targets = [2, 4, 6, 8, 10]
+    inputs = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    targets = [i**2*5 for i in inputs]
     
     
     
